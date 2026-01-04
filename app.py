@@ -84,38 +84,40 @@ if "pdf_blob" not in st.session_state:
 
 # --- 3. PDF HELPER FUNCTION ---
 def create_pdf(text, techniques):
-    pdf = FPDF()
-    pdf.add_page()
-
-    # Title
-    pdf.set_font("Arial", 'B', size=16)
-    pdf.cell(200, 10, txt="Your StudyPredict AI Roadmap", ln=True, align='C')
-
-    # Techniques Section
-    pdf.set_font("Arial", 'B', size=12)
-    pdf.ln(10)
-    pdf.cell(200, 10, txt=f"Recommended Techniques: {techniques}", ln=True)
-
-    # Body Section
-    pdf.set_font("Arial", size=11)
-    pdf.ln(5)
-
-    # CLEANING THE TEXT:
-    # 1. Remove Markdown bold/header tags
-    # 2. Replace common non-latin characters to avoid FPDF errors
-    clean_text = text.replace("**", "").replace("###", "").replace("- ", "* ")
-
-    # FPDF 'Arial' doesn't support many UTF-8 characters.
-    # We convert to Latin-1 and replace unknown characters with '?'
-    clean_text = clean_text.encode('latin-1', 'replace').decode('latin-1')
-
-    pdf.multi_cell(0, 8, txt=clean_text)
-
-    # FIX: In FPDF, dest='S' returns a bytearray. Do not call .encode() on it!
-    pdf_output = pdf.output(dest='S')
-
-    # If it's already bytes/bytearray, just return it
-    return bytes(pdf_output)
+    try:
+        pdf = FPDF()
+        pdf.add_page()
+        
+        # Title
+        pdf.set_font("Arial", 'B', size=16)
+        pdf.cell(200, 10, txt="Your StudyPredict AI Roadmap", ln=True, align='C')
+        
+        # Techniques
+        pdf.set_font("Arial", 'B', size=12)
+        pdf.ln(10)
+        pdf.cell(200, 10, txt=f"Recommended Techniques: {techniques}", ln=True)
+        
+        # Body text cleaning
+        pdf.set_font("Arial", size=11)
+        pdf.ln(5)
+        
+        # Remove markdown characters that Arial can't render
+        clean_text = text.replace("**", "").replace("###", "").replace("- ", "* ")
+        # Convert to Latin-1, replacing emojis/special chars with '?'
+        clean_text = clean_text.encode('latin-1', 'replace').decode('latin-1')
+        
+        pdf.multi_cell(0, 8, txt=clean_text)
+        
+        # Get the output
+        pdf_output = pdf.output(dest='S')
+        
+        # FIX: Check if output is already bytes, if not, encode it
+        if isinstance(pdf_output, str):
+            return pdf_output.encode('latin-1')
+        return bytes(pdf_output)
+        
+    except Exception as e:
+        return f"PDF Error: {str(e)}".encode('latin-1')
 # --- 4. CORE LOGIC (ML & AI) ---
 @st.cache_resource
 def load_ml_assets():
@@ -263,4 +265,5 @@ elif st.session_state.page == "results":
         st.session_state.page = "landing"
         st.session_state.results = None
         st.session_state.pdf_blob = None
+
         st.rerun()
