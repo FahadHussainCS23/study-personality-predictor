@@ -4,4 +4,4 @@ numpy
 scikit-learn
 plotly
 requests
-fpdf
+fpdf2
