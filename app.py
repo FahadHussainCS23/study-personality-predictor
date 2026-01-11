@@ -134,7 +134,7 @@ def load_ml_assets():
 
 
 def get_ai_advice(profile, techniques, subjects):
-    api_key = "AIzaSyCuNt5NsdcWWxYErqXuLl8OpWMNmadkQzg"
+    api_key = "AIzaSyDNde4TB0jbK7Ofqs4xSsV4ROfzvWWVKTM"
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key={api_key}"
 
     prompt = f"""
@@ -267,3 +267,4 @@ elif st.session_state.page == "results":
         st.session_state.pdf_blob = None
 
         st.rerun()
+
